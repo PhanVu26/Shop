@@ -2,222 +2,150 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRẠM CÀ PHÊ</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
-  body{font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "Helvetica Neue", sans-serif; margin:0;background:#f8f5f2;color:#2b2a28}
-  header{background:#6f4e37;color:#fff;text-align:center;padding:14px 10px;font-size:28px;font-weight:700}
-  nav{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;background:#d7ccc8;padding:8px}
-  nav button{padding:12px 18px;font-size:18px;border:none;border-radius:10px;background:#fff;color:#6f4e37}
-  nav button.active{background:#a1887f;color:#fff}
-  section{padding:14px}
-  .hidden{display:none}
+body{font-family:sans-serif;margin:0;background:#fafafa}
+nav{display:flex;justify-content:space-around;background:#6f4e37;color:#fff}
+nav button{flex:1;padding:14px;font-size:20px;border:none;background:inherit;color:#fff;cursor:pointer}
+nav button.active{background:#8d6e63}
+section{padding:15px}
 
-  /* Buttons & inputs big for iPhone */
-  .btn{padding:12px 22px;font-size:20px;border:none;border-radius:10px;cursor:pointer}
-  .btn.primary{background:#6f4e37;color:#fff}
-  .btn.success{background:#2e7d32;color:#fff}
-  .btn.danger{background:#c62828;color:#fff}
-  input[type="text"],input[type="number"],input[type="month"],select{font-size:20px;padding:10px;border:1px solid #c7c7c7;border-radius:10px}
+/* menu bán hàng */
+.menu-scroll{
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;padding:10px;
+}
+.menu-item{
+  width:80%;padding:20px;font-size:24px;
+  border:2px solid #6f4e37;border-radius:14px;
+  background:#fff;text-align:center;cursor:pointer;user-select:none;
+}
+.menu-item:active{transform:scale(0.98)}
+.menu-item:hover{background:#f0e6dd}
 
-  table{border-collapse:collapse;width:100%;margin-top:10px}
-  th,td{border:1px solid #bdbdbd;padding:10px;font-size:20px;text-align:center}
-  th{background:#efeae6}
+/* popup bán hàng */
+.popup{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;
+  z-index:1000;display:none;
+}
+.popup-content{
+  background:#fff;padding:20px;border-radius:12px;width:300px;text-align:center;font-size:20px;
+}
+.popup-content input{font-size:22px;padding:8px;margin:12px 0;width:100%}
 
-  /* Menu bán hàng: scroll ngang */
-  .menu-scroll{display:flex;overflow-x:auto;gap:12px;padding:4px}
-  .menu-item{flex:0 0 auto;padding:18px 20px;font-size:22px;border:2px solid #6f4e37;border-radius:12px;background:#fff;min-width:160px;text-align:center;cursor:pointer;user-select:none}
-  .menu-item:active{transform:scale(0.98)}
-  .menu-item:hover{background:#f0e6dd}
+/* bảng */
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #ccc;padding:6px;text-align:center;font-size:18px}
+.highlight{background:#fff3cd}
 
-  /* Sold list */
-  #sold-list{margin-top:12px}
-  .highlight{background:#fff3cd!important}
-
-  /* Popup */
-  .popup{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
-  .popup-content{background:#fff;padding:22px;border-radius:14px;width:92%;max-width:380px;text-align:center;font-size:22px;box-shadow:0 10px 30px rgba(0,0,0,0.25)}
-  .popup-content input{font-size:26px;padding:10px;margin:14px 0;width:100%;text-align:center}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+/* nút */
+.btn{padding:10px 14px;font-size:18px;border:none;border-radius:6px;cursor:pointer}
+.btn.primary{background:#1976d2;color:#fff}
+.btn.danger{background:#d32f2f;color:#fff}
+.btn.success{background:#388e3c;color:#fff}
 </style>
 </head>
 <body>
-<header>TRẠM CÀ PHÊ</header>
-
 <nav>
-  <button onclick="showTab('menu')">Quản lý Menu</button>
-  <button onclick="showTab('banhang')">Bán hàng</button>
-  <button onclick="showTab('nhapkho')">Nhập kho</button>
-  <button onclick="showTab('baocao')">Báo cáo</button>
+  <button onclick="openTab('banhang')" id="tab-banhang">Bán hàng</button>
+  <button onclick="openTab('menu')">Menu</button>
+  <button onclick="openTab('nhapkho')">Nhập kho</button>
+  <button onclick="openTab('baocao')">Báo cáo</button>
+  <button onclick="openTab('caidat')">Cài đặt</button>
 </nav>
 
-<!-- Quản lý Menu -->
-<section id="menu" class="hidden">
-  <h3>Thêm / sửa món</h3>
-  <div class="row">
-    <input id="menu-ten" type="text" placeholder="Tên món (VD: Cà phê sữa)" />
-    <input id="menu-gia" type="number" min="1000" step="500" placeholder="Giá (VNĐ)" />
-    <button id="menu-save" class="btn primary">Lưu</button>
-    <button id="menu-cancel" class="btn danger hidden">Hủy</button>
-  </div>
-  <div class="row">
-    <input id="menu-file" type="file" accept=".csv" style="display:none" />
-    <button id="menu-import" class="btn success">Import CSV</button>
-    <button onclick="exportMenuExcel()" class="btn">Export Excel</button>
-  </div>
-  <h3>Danh sách menu</h3>
-  <div id="menu-list"></div>
-</section>
-
 <!-- Bán hàng -->
-<section id="banhang" class="hidden">
-  <h3>Chọn món để bán</h3>
+<section id="banhang">
+  <h2>Bán hàng</h2>
   <div class="menu-scroll" id="ban-grid"></div>
-
-  <h3>📦 Đã bán trong ngày</h3>
   <div id="sold-list"></div>
 </section>
 
+<!-- Menu -->
+<section id="menu" class="hidden">
+  <h2>Quản lý menu</h2>
+  <div>
+    <input id="new-ten" placeholder="Tên món">
+    <input id="new-gia" type="number" placeholder="Giá">
+    <button class="btn success" onclick="addMenu()">Thêm</button>
+  </div>
+  <table id="menu-table"></table>
+  <div style="margin-top:12px">
+    <input type="file" id="csv-file" accept=".csv">
+    <button class="btn primary" onclick="importCSV()">Import CSV</button>
+  </div>
+</section>
+
+<!-- Nhập kho -->
+<section id="nhapkho" class="hidden">
+  <h2>Quản lý nhập kho</h2>
+  <div>
+    <select id="nhap-ten"></select>
+    <input type="number" id="nhap-sl" placeholder="Số lượng">
+    <input type="number" id="nhap-gia" placeholder="Đơn giá">
+    <button class="btn success" onclick="addNhap()">Nhập</button>
+  </div>
+  <table id="nhap-table"></table>
+</section>
+
+<!-- Báo cáo -->
+<section id="baocao" class="hidden">
+  <h2>Báo cáo</h2>
+  <label for="report-month" style="font-size:20px;">Chọn tháng:</label>
+  <input type="month" id="report-month" style="font-size:20px;padding:6px" onchange="renderReport()">
+  
+  <h3>Danh sách bán hàng trong tháng</h3>
+  <div id="report-sales"></div>
+  
+  <h3>Doanh thu & Lợi nhuận (Tuần / Tháng / Năm)</h3>
+  <div id="report-summary"></div>
+</section>
+
+<!-- Cài đặt -->
+<section id="caidat" class="hidden">
+  <h2>Cài đặt</h2>
+  <button class="btn danger" onclick="clearData()">Xóa toàn bộ dữ liệu</button>
+</section>
+
 <!-- Popup nhập số lượng -->
-<div id="sell-popup" class="popup" onclick="popupBackdropClick(event)">
+<div id="sell-popup" class="popup">
   <div class="popup-content">
     <h3 id="popup-name"></h3>
     <p>Giá: <span id="popup-price"></span></p>
-    <input type="number" id="popup-qty" min="1" value="1" inputmode="numeric" />
-    <div class="row" style="justify-content:center">
+    <input type="number" id="popup-qty" min="1" value="1">
+    <div style="margin-top:15px">
       <button class="btn primary" onclick="confirmSell()">Xác nhận</button>
       <button class="btn danger" onclick="closePopup()">Hủy</button>
     </div>
   </div>
 </div>
 
-<!-- Nhập kho -->
-<section id="nhapkho" class="hidden">
-  <h3>Nhập hàng</h3>
-  <div class="row">
-    <input id="nk-ten" type="text" placeholder="Tên nguyên liệu" />
-    <input id="nk-sl" type="number" min="1" step="1" placeholder="Số lượng" />
-    <input id="nk-gia" type="number" min="500" step="100" placeholder="Đơn giá (VNĐ)" />
-    <button onclick="addNhapKho()" class="btn primary">Thêm</button>
-  </div>
-  <h3>Danh sách nhập kho</h3>
-  <div id="nk-list"></div>
-</section>
-
-<!-- Báo cáo -->
-<section id="baocao" class="hidden">
-  <h3>Báo cáo bán hàng</h3>
-  <div class="row">
-    <label for="report-month" style="font-size:20px">Chọn tháng:</label>
-    <input type="month" id="report-month" onchange="renderReport()">
-  </div>
-
-  <h3>Danh sách bán hàng trong tháng</h3>
-  <div id="report-sales"></div>
-
-  <h3>Doanh thu & Lợi nhuận (Tuần / Tháng / Năm)</h3>
-  <div id="report-summary"></div>
-</section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-/* ===== Storage & helpers ===== */
-const LS_MENU="tram_menu",LS_SALES="tram_sales",LS_NHAP="tram_nhap";
-let menu=load(LS_MENU,[]),sales=load(LS_SALES,[]),nhapkho=load(LS_NHAP,[]);
-const fmt=new Intl.NumberFormat("vi-VN",{style:"currency",currency:"VND",maximumFractionDigits:0});
-const qs=s=>document.querySelector(s);
-function load(k,d){try{return JSON.parse(localStorage.getItem(k)) ?? d}catch{return d}}
+const LS_MENU="menu",LS_SALES="sales",LS_NHAP="nhapkho";
+let menu=JSON.parse(localStorage.getItem(LS_MENU)||"[]");
+let sales=JSON.parse(localStorage.getItem(LS_SALES)||"[]");
+let nhapkho=JSON.parse(localStorage.getItem(LS_NHAP)||"[]");
+let currentItem=null,lastSoldId=null;
+const fmt=new Intl.NumberFormat("vi-VN",{style:"currency",currency:"VND"});
+
+function qs(id){return document.querySelector(id)}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function nowStartOfDay(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
 
-function showTab(id){
+function openTab(id){
   document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
   qs("#"+id).classList.remove("hidden");
-  // add active class to the clicked button if available
-  if(event && event.target && event.target.tagName==="BUTTON") event.target.classList.add("active");
-  if(id==="menu") renderMenu();
-  if(id==="banhang") renderBanHang();
-  if(id==="nhapkho") renderNhapKho();
-  if(id==="baocao") renderReport();
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  if(id==="banhang"){qs("#tab-banhang").classList.add("active");renderBanHang();}
+  if(id==="menu")renderMenu();
+  if(id==="nhapkho")renderNhap();
+  if(id==="baocao")renderReport();
 }
 
-/* ===== MENU ===== */
-function renderMenu(){
-  const list=qs("#menu-list"); list.innerHTML="";
-  if(!menu.length){list.innerHTML="<i>Chưa có món trong menu</i>";return}
-  menu.forEach((m,i)=>{
-    const d=document.createElement("div");
-    d.className="row";
-    d.style.justifyContent="space-between";
-    d.innerHTML=`<div style="font-size:20px"><b>${m.ten}</b> - ${fmt.format(m.gia)}</div>
-      <div class="row">
-        <button class="btn" onclick="editMenu(${i})">Sửa</button>
-        <button class="btn danger" onclick="delMenu(${i})">Xóa</button>
-      </div>`;
-    list.appendChild(d);
-  });
-}
-qs("#menu-save").onclick=()=>{
-  const ten=qs("#menu-ten").value.trim(), gia=+qs("#menu-gia").value;
-  if(!ten || isNaN(gia) || gia<1000){alert("Vui lòng nhập tên và giá hợp lệ (>= 1.000đ)");return}
-  const idx=qs("#menu-save").dataset.edit;
-  if(idx!==undefined){menu[+idx].ten=ten;menu[+idx].gia=gia;delete qs("#menu-save").dataset.edit}
-  else menu.push({ten,gia});
-  save(LS_MENU,menu);
-  qs("#menu-ten").value=""; qs("#menu-gia").value="";
-  qs("#menu-cancel").classList.add("hidden");
-  renderMenu(); renderBanHang();
-};
-function editMenu(i){
-  qs("#menu-ten").value=menu[i].ten;
-  qs("#menu-gia").value=menu[i].gia;
-  qs("#menu-save").dataset.edit=i;
-  qs("#menu-cancel").classList.remove("hidden");
-}
-qs("#menu-cancel").onclick=()=>{
-  delete qs("#menu-save").dataset.edit;
-  qs("#menu-ten").value=""; qs("#menu-gia").value="";
-  qs("#menu-cancel").classList.add("hidden");
-};
-function delMenu(i){
-  if(confirm("Xóa món này khỏi menu?")){
-    menu.splice(i,1); save(LS_MENU,menu);
-    renderMenu(); renderBanHang();
-  }
-}
-qs("#menu-import").onclick=()=>qs("#menu-file").click();
-qs("#menu-file").onchange=e=>{
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const lines=ev.target.result.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-    let added=0;
-    lines.forEach(l=>{
-      const [ten,giaStr]=l.split(",");
-      const gia=+((giaStr||"").trim());
-      if(ten && !isNaN(gia) && gia>=1000){menu.push({ten:ten.trim(),gia}); added++;}
-    });
-    if(added===0) alert("Không có dòng hợp lệ (định dạng: Tên,Giá)");
-    save(LS_MENU,menu); renderMenu(); renderBanHang();
-  };
-  reader.readAsText(file,"UTF-8");
-  e.target.value="";
-};
-function exportMenuExcel(){
-  if(!menu.length){alert("Menu trống!");return}
-  const ws=XLSX.utils.json_to_sheet(menu);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Menu");
-  XLSX.writeFile(wb,"Menu_Tra̛mCaPhe.xlsx");
-}
-
-/* ===== BÁN HÀNG ===== */
-let currentItem=null, lastSoldId=null;
-
+// Bán hàng
 function renderBanHang(){
   const grid=qs("#ban-grid"); grid.innerHTML="";
-  if(!menu.length){grid.innerHTML="<i>Chưa có món trong menu</i>";return}
   menu.forEach(m=>{
     const div=document.createElement("div");
     div.className="menu-item";
@@ -225,154 +153,146 @@ function renderBanHang(){
     div.onclick=()=>openPopup(m);
     grid.appendChild(div);
   });
-  renderSoldToday();
+  renderSold();
 }
-
-function popupBackdropClick(e){ if(e.target.id==="sell-popup") closePopup(); }
 function openPopup(item){
   currentItem=item;
   qs("#popup-name").textContent=item.ten;
   qs("#popup-price").textContent=fmt.format(item.gia);
-  const qty=qs("#popup-qty");
-  qty.value=1; qty.focus(); qty.select();
+  qs("#popup-qty").value=1;
   qs("#sell-popup").style.display="flex";
 }
-function closePopup(){ qs("#sell-popup").style.display="none"; }
-
+function closePopup(){qs("#sell-popup").style.display="none";}
 function confirmSell(){
   const sl=+qs("#popup-qty").value;
-  if(isNaN(sl) || sl<1){alert("Số lượng không hợp lệ");return}
-  const ts=Date.now(), id="s"+ts;
+  if(isNaN(sl)||sl<1){alert("Số lượng không hợp lệ");return;}
+  const ts=Date.now(),id="s"+ts;
   sales.push({id,ten:currentItem.ten,gia:currentItem.gia,sl,ts});
   save(LS_SALES,sales);
-  lastSoldId=id;
-  closePopup();
-  renderSoldToday();
+  lastSoldId=id; closePopup(); renderSold();
 }
-
-/* Danh sách đã bán trong ngày – sửa/xóa theo ID an toàn */
-function getTodaySales(){
-  const start=nowStartOfDay();
-  return sales.filter(s=>s.ts>=start);
-}
-function renderSoldToday(){
+function renderSold(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const sold=sales.filter(s=>s.ts>=today.getTime());
   const list=qs("#sold-list");
-  const todaySales=getTodaySales();
-  if(!todaySales.length){list.innerHTML="<i>Chưa bán hôm nay</i>";return}
-  let tong=0;
-  let html=`<table>
-    <tr><th>Món</th><th>SL</th><th>Thành tiền</th><th></th></tr>`;
-  todaySales.forEach(s=>{
+  if(!sold.length){list.innerHTML="<i>Chưa bán hôm nay</i>";return}
+  let tong=0,html="<h3>Đã bán hôm nay</h3><table><tr><th>Món</th><th>SL</th><th>Thành tiền</th><th></th></tr>";
+  sold.forEach((s,idx)=>{
     const tt=s.sl*s.gia; tong+=tt;
     const hl=(s.id===lastSoldId)?"highlight":"";
     html+=`<tr class="${hl}">
       <td>${s.ten}</td>
-      <td>
-        <input type="number" min="1" step="1" value="${s.sl}" style="font-size:20px;width:80px"
-               onchange="editSoldById('${s.id}', this.value)">
-      </td>
+      <td><input type="number" value="${s.sl}" min="1" style="font-size:18px;width:70px"
+          onchange="editSold(${idx},this.value)"></td>
       <td>${fmt.format(tt)}</td>
-      <td><button class="btn danger" onclick="removeSoldById('${s.id}')">X</button></td>
+      <td><button class="btn danger" onclick="removeSold(${idx})">X</button></td>
     </tr>`;
   });
-  html+=`<tr><th colspan="2">Tổng</th><th>${fmt.format(tong)}</th><th></th></tr></table>`;
+  html+=`<tr><th colspan=2>Tổng</th><th>${fmt.format(tong)}</th><th></th></tr></table>`;
   list.innerHTML=html;
 }
-function findSaleIndexById(id){ return sales.findIndex(x=>x.id===id); }
-function editSoldById(id,val){
-  const qty=+val;
-  if(isNaN(qty)||qty<1){alert("Số lượng không hợp lệ"); renderSoldToday(); return;}
-  const i=findSaleIndexById(id);
-  if(i>-1){ sales[i].sl=qty; save(LS_SALES,sales); renderSoldToday(); }
-}
-function removeSoldById(id){
-  if(!confirm("Xóa mục đã bán này?")) return;
-  const i=findSaleIndexById(id);
-  if(i>-1){ sales.splice(i,1); save(LS_SALES,sales); renderSoldToday(); }
-}
-
-/* ===== NHẬP KHO ===== */
-function addNhapKho(){
-  const ten=qs("#nk-ten").value.trim();
-  const sl=+qs("#nk-sl").value;
-  const gia=+qs("#nk-gia").value;
-  if(!ten || isNaN(sl)||sl<1 || isNaN(gia)||gia<500){
-    alert("Vui lòng nhập tên, số lượng (>=1) và đơn giá (>=500đ)"); return;
-  }
-  nhapkho.push({ten,sl,gia,ts:Date.now()});
-  save(LS_NHAP,nhapkho);
-  qs("#nk-ten").value=""; qs("#nk-sl").value=""; qs("#nk-gia").value="";
-  renderNhapKho();
-}
-function renderNhapKho(){
-  const wrap=qs("#nk-list");
-  if(!nhapkho.length){wrap.innerHTML="<i>Chưa nhập kho</i>";return}
-  let tong=0;
-  let html=`<table><tr><th>Nguyên liệu</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr>`;
-  nhapkho.forEach(n=>{
-    const tt=n.sl*n.gia; tong+=tt;
-    html+=`<tr><td>${n.ten}</td><td>${n.sl}</td><td>${fmt.format(n.gia)}</td><td>${fmt.format(tt)}</td></tr>`;
-  });
-  html+=`<tr><th colspan="3">Tổng</th><th>${fmt.format(tong)}</th></tr></table>`;
-  wrap.innerHTML=html;
-}
-
-/* ===== BÁO CÁO (lọc theo tháng) ===== */
-function renderReport(){
-  // Thiết lập mặc định tháng hiện tại nếu chưa chọn
-  const monthInput=qs("#report-month");
-  if(!monthInput.value){
-    const today=new Date();
-    const v=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;
-    monthInput.value=v;
-  }
-  const [y,m]=monthInput.value.split("-").map(Number);
-  const monthStart=new Date(y, m-1, 1).getTime();
-  const monthEnd=new Date(y, m, 1).getTime();
-
-  // Danh sách bán hàng trong tháng
-  const soldMonth=sales.filter(s=>s.ts>=monthStart && s.ts<monthEnd);
-  let htmlSales="<table><tr><th>Món</th><th>SL</th><th>Thành tiền</th></tr>";
-  if(soldMonth.length){
-    soldMonth.forEach(s=>{htmlSales+=`<tr><td>${s.ten}</td><td>${s.sl}</td><td>${fmt.format(s.sl*s.gia)}</td></tr>`});
-  }else{
-    htmlSales+=`<tr><td colspan="3"><i>Không có dữ liệu</i></td></tr>`;
-  }
-  htmlSales+="</table>";
-  qs("#report-sales").innerHTML=htmlSales;
-
-  // Tổng hợp Tuần / Tháng / Năm
+function editSold(i,val){
+  val=+val;if(isNaN(val)||val<1){alert("Số lượng không hợp lệ");renderSold();return;}
   const today=new Date(); today.setHours(0,0,0,0);
-  const weekStart=new Date(today); weekStart.setDate(weekStart.getDate()-weekStart.getDay()); // tuần bắt đầu Chủ nhật
-  const yearStart=new Date(today.getFullYear(),0,1).getTime();
+  const sold=sales.filter(s=>s.ts>=today.getTime());
+  const globalIndex=sales.indexOf(sold[i]);
+  sales[globalIndex].sl=val; save(LS_SALES,sales); renderSold();
+}
+function removeSold(i){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const sold=sales.filter(s=>s.ts>=today.getTime());
+  const globalIndex=sales.indexOf(sold[i]);
+  sales.splice(globalIndex,1); save(LS_SALES,sales); renderSold();
+}
 
-  const sumSales = fn => sales.filter(fn).reduce((a,b)=>a+b.sl*b.gia,0);
-  const sumNhap  = fn => nhapkho.filter(fn).reduce((a,b)=>a+b.sl*b.gia,0);
+// Menu
+function renderMenu(){
+  let html="<tr><th>Tên</th><th>Giá</th><th></th></tr>";
+  menu.forEach((m,i)=>{
+    html+=`<tr><td>${m.ten}</td>
+    <td><input type="number" value="${m.gia}" onchange="editGia(${i},this.value)"></td>
+    <td><button class="btn danger" onclick="delMenu(${i})">X</button></td></tr>`;
+  });
+  qs("#menu-table").innerHTML=html;
+  let opt=""; menu.forEach(m=>opt+=`<option>${m.ten}</option>`); qs("#nhap-ten").innerHTML=opt;
+}
+function addMenu(){
+  const ten=qs("#new-ten").value.trim();const gia=+qs("#new-gia").value;
+  if(!ten||isNaN(gia)||gia<=0)return alert("Sai dữ liệu");
+  menu.push({ten,gia});save(LS_MENU,menu);qs("#new-ten").value="";qs("#new-gia").value="";renderMenu();
+}
+function editGia(i,val){val=+val;if(val>0){menu[i].gia=val;save(LS_MENU,menu);}}
+function delMenu(i){menu.splice(i,1);save(LS_MENU,menu);renderMenu();}
+function importCSV(){
+  const file=qs("#csv-file").files[0];if(!file)return;
+  const r=new FileReader();r.onload=e=>{
+    const lines=e.target.result.split(/\r?\n/);
+    lines.forEach(l=>{const p=l.split(",");if(p.length>=2){const ten=p[0].trim();const gia=+p[1];if(ten&&gia>0)menu.push({ten,gia});}});
+    save(LS_MENU,menu);renderMenu();
+  };r.readAsText(file);
+}
 
-  const dtWeek = sumSales(s=>s.ts>=weekStart.getTime());
-  const cpWeek = sumNhap (n=>n.ts>=weekStart.getTime());
-  const dtMonth= sumSales(s=>s.ts>=monthStart && s.ts<monthEnd);
-  const cpMonth= sumNhap (n=>n.ts>=monthStart && n.ts<monthEnd);
-  const dtYear = sumSales(s=>s.ts>=yearStart);
-  const cpYear = sumNhap (n=>n.ts>=yearStart);
+// Nhập kho
+function renderNhap(){
+  let html="<tr><th>Món</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr>";
+  nhapkho.forEach(n=>html+=`<tr><td>${n.ten}</td><td>${n.sl}</td><td>${fmt.format(n.gia)}</td><td>${fmt.format(n.sl*n.gia)}</td></tr>`);
+  qs("#nhap-table").innerHTML=html;
+}
+function addNhap(){
+  const ten=qs("#nhap-ten").value,sl=+qs("#nhap-sl").value,gia=+qs("#nhap-gia").value;
+  if(!ten||sl<=0||gia<=0)return alert("Sai dữ liệu");
+  nhapkho.push({ten,sl,gia,ts:Date.now()});save(LS_NHAP,nhapkho);
+  qs("#nhap-sl").value="";qs("#nhap-gia").value="";renderNhap();
+}
 
-  const htmlSummary = `
-    <table>
-      <tr><th>Khoảng</th><th>Doanh thu</th><th>Chi phí</th><th>Lợi nhuận</th></tr>
-      <tr><td>Tuần</td><td>${fmt.format(dtWeek)}</td><td>${fmt.format(cpWeek)}</td><td>${fmt.format(dtWeek-cpWeek)}</td></tr>
-      <tr><td>Tháng (${monthInput.value})</td><td>${fmt.format(dtMonth)}</td><td>${fmt.format(cpMonth)}</td><td>${fmt.format(dtMonth-cpMonth)}</td></tr>
-      <tr><td>Năm</td><td>${fmt.format(dtYear)}</td><td>${fmt.format(cpYear)}</td><td>${fmt.format(dtYear-cpYear)}</td></tr>
-    </table>`;
+// Báo cáo
+function renderReport(){
+  const monthInput=qs("#report-month").value;
+  let monthStart,monthEnd;
+  if(monthInput){
+    const [y,m]=monthInput.split("-").map(Number);
+    monthStart=new Date(y,m-1,1);monthEnd=new Date(y,m,1);
+  }else{
+    const today=new Date();monthStart=new Date(today.getFullYear(),today.getMonth(),1);
+    monthEnd=new Date(today.getFullYear(),today.getMonth()+1,1);
+    qs("#report-month").value=today.toISOString().slice(0,7);
+  }
+  const soldMonth=sales.filter(s=>s.ts>=monthStart.getTime()&&s.ts<monthEnd.getTime());
+  let htmlSales="<table><tr><th>Món</th><th>SL</th><th>Thành tiền</th></tr>";
+  soldMonth.forEach(s=>htmlSales+=`<tr><td>${s.ten}</td><td>${s.sl}</td><td>${fmt.format(s.sl*s.gia)}</td></tr>`);
+  htmlSales+="</table>";qs("#report-sales").innerHTML=htmlSales||"<i>Không có dữ liệu</i>";
+
+  const today=new Date();today.setHours(0,0,0,0);
+  const weekStart=new Date(today);weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+  const yearStart=new Date(today.getFullYear(),0,1);
+  function sumSales(fn){return sales.filter(fn).reduce((a,b)=>a+b.sl*b.gia,0);}
+  function sumNhap(fn){return nhapkho.filter(fn).reduce((a,b)=>a+b.sl*b.gia,0);}
+  const htmlSummary=`<table>
+    <tr><th>Khoảng</th><th>Doanh thu</th><th>Chi phí</th><th>Lợi nhuận</th></tr>
+    <tr><td>Tuần</td><td>${fmt.format(sumSales(s=>s.ts>=weekStart.getTime()))}</td>
+        <td>${fmt.format(sumNhap(n=>n.ts>=weekStart.getTime()))}</td>
+        <td>${fmt.format(sumSales(s=>s.ts>=weekStart.getTime())-sumNhap(n=>n.ts>=weekStart.getTime()))}</td></tr>
+    <tr><td>Tháng (${qs("#report-month").value})</td>
+        <td>${fmt.format(sumSales(s=>s.ts>=monthStart.getTime() && s.ts<monthEnd.getTime()))}</td>
+        <td>${fmt.format(sumNhap(n=>n.ts>=monthStart.getTime() && n.ts<monthEnd.getTime()))}</td>
+        <td>${fmt.format(sumSales(s=>s.ts>=monthStart.getTime()&&s.ts<monthEnd.getTime())-sumNhap(n=>n.ts>=monthStart.getTime()&&n.ts<monthEnd.getTime()))}</td></tr>
+    <tr><td>Năm</td><td>${fmt.format(sumSales(s=>s.ts>=yearStart.getTime()))}</td>
+        <td>${fmt.format(sumNhap(n=>n.ts>=yearStart.getTime()))}</td>
+        <td>${fmt.format(sumSales(s=>s.ts>=yearStart.getTime())-sumNhap(n=>n.ts>=yearStart.getTime()))}</td></tr>
+  </table>`;
   qs("#report-summary").innerHTML=htmlSummary;
 }
 
-/* ===== Init ===== */
-(function init(){
-  // Mặc định mở tab Bán hàng cho thao tác nhanh
-  document.querySelectorAll("nav button")[1].classList.add("active");
-  qs("#banhang").classList.remove("hidden");
-  renderBanHang();
-})();
+// Cài đặt
+function clearData(){
+  if(confirm("Xóa toàn bộ dữ liệu?")){
+    localStorage.clear();menu=[];sales=[];nhapkho=[];
+    renderMenu();renderNhap();renderSold();alert("Đã xóa dữ liệu!");
+  }
+}
+
+// Khởi tạo
+openTab("banhang");
 </script>
 </body>
 </html>
