@@ -1,438 +1,279 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>My Coffee Shop</title>
+<title>TRẠM CÀ PHÊ</title>
 <style>
-  :root{
-    --bg:#f7f3ee; --ink:#2b2a28; --accent:#6f4e37; --accent-2:#b08968; --card:#fff;
-    --ok:#2e7d32; --danger:#b71c1c; --muted:#7a7771; --border:#e5dfd7;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--ink);font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-  header{position:sticky;top:0;background:linear-gradient(180deg,#f3ebe3 0%, #f7f3ee 100%);border-bottom:1px solid var(--border);z-index:9}
-  .wrap{max-width:1100px;margin:0 auto;padding:16px}
-  h1{margin:8px 0 4px;font-size:22px}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
-  .tab-btn{border:1px solid var(--border);background:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-  .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-  main{padding:16px 0}
+  body{font-family:Arial,Helvetica,sans-serif;background:#f7f3ee;margin:0;color:#2b2a28;font-size:18px}
+  header{background:#6f4e37;color:#fff;padding:12px;position:sticky;top:0}
+  header h1{margin:0;font-size:26px}
+  .tabs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .tab-btn{font-size:18px;padding:10px 18px;border:none;border-radius:8px;cursor:pointer}
+  .tab-btn.active{background:#2b2a28;color:#fff}
+  .tab-btn:not(.active){background:#fff;color:#6f4e37}
+  main{padding:18px}
   .hidden{display:none}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-  label{display:block;font-size:14px;margin:8px 0 4px;color:var(--muted)}
-  input[type="text"],input[type="number"],select{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .btn{border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  .btn.alt{background:#fff;border-color:var(--accent);color:var(--accent)}
-  .btn.success{background:var(--ok);border-color:var(--ok);color:#fff}
-  .btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
-  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}
-  tfoot td{font-weight:600}
-  .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#efe7df;color:#5a4636;font-size:12px}
-  .muted{color:var(--muted)}
-  .price{font-variant-numeric: tabular-nums}
-  .toolbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0}
-  .menu-item{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .menu-title{font-weight:600}
-  .menu-actions{display:flex;gap:6px}
-  .sell-card{display:flex;flex-direction:column;gap:6px;min-height:120px}
-  .sell-card h4{margin:0}
-  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0}
-  .kpi .card{display:flex;justify-content:space-between;align-items:center}
-  .hint{font-size:12px;color:var(--muted)}
-  .divider{height:1px;background:var(--border);margin:10px 0}
-  .right{margin-left:auto}
-  .center{display:flex;justify-content:center;align-items:center}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid #ddd;padding:14px;border-radius:10px;font-size:18px}
+  h3{margin-top:0;font-size:20px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  input[type=number],input[type=text]{font-size:18px;padding:8px;border:1px solid #ccc;border-radius:6px}
+  .btn{font-size:18px;padding:8px 14px;border:none;border-radius:8px;cursor:pointer}
+  .btn.primary{background:#6f4e37;color:#fff}
+  .btn.danger{background:#b71c1c;color:#fff}
+  .btn.success{background:#2e7d32;color:#fff}
+  .btn.info{background:#0277bd;color:#fff}
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:18px}
+  th,td{border:1px solid #ccc;padding:8px;text-align:left}
+  th{background:#eee}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>☕ My Coffee Shop</h1>
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="sell">Sell</button>
-        <button class="tab-btn" data-tab="menu">Menu</button>
-        <button class="tab-btn" data-tab="reports">Reports</button>
-        <button class="tab-btn" data-tab="settings">Settings</button>
-      </div>
+<header>
+  <h1>☕ TRẠM CÀ PHÊ</h1>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="banhang">Bán hàng</button>
+    <button class="tab-btn" data-tab="menu">Quản lý menu</button>
+    <button class="tab-btn" data-tab="nhapkho">Nhập kho</button>
+    <button class="tab-btn" data-tab="baocao">Báo cáo</button>
+    <button class="tab-btn" data-tab="caidat">Cài đặt</button>
+  </div>
+</header>
+
+<main>
+  <!-- BÁN HÀNG -->
+  <section id="banhang">
+    <h3>Danh sách món</h3>
+    <div id="ban-grid" class="grid"></div>
+    <h3>Hóa đơn tạm</h3>
+    <div id="ban-table"></div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu" class="hidden">
+    <h3>Thêm / sửa món</h3>
+    <div class="row">
+      <input id="menu-ten" type="text" placeholder="Tên món" />
+      <input id="menu-gia" type="number" min="1000" step="1000" placeholder="Giá (VNĐ)" />
+      <button id="menu-save" class="btn primary">Lưu</button>
+      <button id="menu-cancel" class="btn danger hidden">Hủy</button>
     </div>
-  </header>
+    <h3>Danh sách menu</h3>
+    <div id="menu-list"></div>
+  </section>
 
-  <main class="wrap">
-    <!-- SELL -->
-    <section id="sell" class="">
-      <div class="kpi">
-        <div class="card"><div>Today Items</div><div class="price" id="kpi-items">0</div></div>
-        <div class="card"><div>Today Revenue</div><div class="price" id="kpi-rev">0 VNĐ</div></div>
-        <div class="card"><div>Entries</div><div class="price" id="kpi-entries">0</div></div>
-      </div>
+  <!-- NHẬP KHO -->
+  <section id="nhapkho" class="hidden">
+    <h3>Nhập kho</h3>
+    <div class="row">
+      <input id="kho-ten" type="text" placeholder="Tên hàng" />
+      <input id="kho-sl" type="number" min="1" placeholder="Số lượng" />
+      <input id="kho-dg" type="number" min="1" placeholder="Đơn giá" />
+      <button id="kho-save" class="btn primary">Thêm</button>
+    </div>
+    <h3>Danh sách nhập kho</h3>
+    <div id="kho-list"></div>
+  </section>
 
-      <div class="toolbar">
-        <div class="row">
-          <span class="pill">Tap item to add sale</span>
-        </div>
-        <div class="row">
-          <button class="btn alt" id="btn-undo">Undo last</button>
-          <button class="btn" id="btn-clear-today">Clear today</button>
-        </div>
-      </div>
+  <!-- BÁO CÁO -->
+  <section id="baocao" class="hidden">
+    <h3>Báo cáo doanh thu & lợi nhuận</h3>
+    <div class="row">
+      <label>Chọn kỳ:</label>
+      <select id="ky" style="font-size:18px;padding:6px">
+        <option value="day">Hôm nay</option>
+        <option value="week">Tuần này</option>
+        <option value="month">Tháng này</option>
+        <option value="year">Năm nay</option>
+      </select>
+      <button id="btn-export" class="btn success">Xuất Excel</button>
+    </div>
+    <div id="report"></div>
+  </section>
 
-      <div id="sell-grid" class="grid"></div>
-
-      <h3>Today's Sold Items</h3>
-      <div class="hint">Grouped by item (today only)</div>
-      <div id="today-table"></div>
-    </section>
-
-    <!-- MENU -->
-    <section id="menu" class="hidden">
-      <div class="grid">
-        <div class="card">
-          <h3>Add / Edit Menu Item</h3>
-          <label>Name</label>
-          <input id="menu-name" type="text" placeholder="Cà phê đen" />
-          <label>Price (VNĐ)</label>
-          <input id="menu-price" type="number" min="0" step="500" placeholder="15000" />
-          <div class="row">
-            <button id="menu-save" class="btn primary">Save</button>
-            <button id="menu-reset" class="btn">Reset</button>
-            <span class="hint">Example: “Cà phê đen – 15,000 VNĐ”</span>
-          </div>
-          <input id="menu-id" type="hidden" />
-        </div>
-
-        <div class="card">
-          <h3>Menu List</h3>
-          <div id="menu-list" class="grid"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- REPORTS -->
-    <section id="reports" class="hidden">
-      <div class="card">
-        <div class="row">
-          <label for="period">Period</label>
-          <select id="period">
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="year">This Year</option>
-          </select>
-          <button class="btn" id="btn-prev">◀ Prev</button>
-          <button class="btn" id="btn-next">Next ▶</button>
-          <div id="period-label" class="pill right"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="kpi">
-          <div class="card"><div>Total Items</div><div class="price" id="r-items">0</div></div>
-          <div class="card"><div>Total Revenue</div><div class="price" id="r-rev">0 VNĐ</div></div>
-          <div class="card"><div>Distinct Products</div><div class="price" id="r-products">0</div></div>
-        </div>
-        <div id="report-table"></div>
-      </div>
-    </section>
-
-    <!-- SETTINGS -->
-    <section id="settings" class="hidden">
-      <div class="grid">
-        <div class="card">
-          <h3>Data</h3>
-          <div class="row">
-            <button id="btn-seed" class="btn">Seed sample menu</button>
-            <button id="btn-clear-all" class="btn danger">Clear ALL data</button>
-          </div>
-          <p class="hint">Data is stored in your browser's <code>localStorage</code> only.</p>
-        </div>
-        <div class="card">
-          <h3>About</h3>
-          <p>Static web app for a coffee shop. No backend. Built with vanilla HTML/CSS/JS.</p>
-        </div>
-      </div>
-    </section>
-  </main>
+  <!-- CÀI ĐẶT -->
+  <section id="caidat" class="hidden">
+    <h3>Dữ liệu</h3>
+    <button id="btn-clear" class="btn danger">Xóa toàn bộ dữ liệu</button>
+  </section>
+</main>
 
 <script>
-/* ===================== Utilities ===================== */
-const LS_MENU = 'coffee_menu_v1';
-const LS_SALES = 'coffee_sales_v1';
+const LS_MENU="cf_menu", LS_SALES="cf_sales", LS_KHO="cf_kho";
+const fmt=new Intl.NumberFormat("vi-VN",{style:"currency",currency:"VND",maximumFractionDigits:0});
+const qs=s=>document.querySelector(s); const qsa=s=>document.querySelectorAll(s);
 
-const currency = new Intl.NumberFormat('vi-VN', { style:'currency', currency:'VND', maximumFractionDigits:0 });
-const numberfmt = new Intl.NumberFormat('vi-VN');
+function load(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch{return[]}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+let menu=load(LS_MENU), sales=load(LS_SALES), kho=load(LS_KHO);
+let draft=[]; // hóa đơn tạm
 
-const qs = s => document.querySelector(s);
-const qsa = s => Array.from(document.querySelectorAll(s));
-
-const uuid = () => Math.random().toString(36).slice(2)+Date.now().toString(36);
-
-function loadMenu(){ try{ return JSON.parse(localStorage.getItem(LS_MENU)) || []; }catch{ return []; } }
-function saveMenu(arr){ localStorage.setItem(LS_MENU, JSON.stringify(arr)); }
-function loadSales(){ try{ return JSON.parse(localStorage.getItem(LS_SALES)) || []; }catch{ return []; } }
-function saveSales(arr){ localStorage.setItem(LS_SALES, JSON.stringify(arr)); }
-
-function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
-function endOfDay(d){ const x=new Date(d); x.setHours(23,59,59,999); return x; }
-
-/* Week (ISO-like): Monday start */
-function startOfWeek(date, offset=0){
-  const d = new Date(date);
-  d.setDate(d.getDate() + offset*7);
-  const day = (d.getDay() + 6) % 7; // 0=Mon
-  d.setDate(d.getDate()-day);
-  d.setHours(0,0,0,0);
-  return d;
-}
-function endOfWeek(date, offset=0){
-  const s = startOfWeek(date, offset);
-  const e = new Date(s); e.setDate(e.getDate()+6); e.setHours(23,59,59,999); return e;
-}
-function startOfMonth(date, offset=0){
-  const d = new Date(date);
-  d.setMonth(d.getMonth()+offset,1);
-  d.setHours(0,0,0,0);
-  return d;
-}
-function endOfMonth(date, offset=0){
-  const s = startOfMonth(date, offset);
-  const e = new Date(s); e.setMonth(e.getMonth()+1,0); e.setHours(23,59,59,999); return e;
-}
-function startOfYear(date, offset=0){
-  const d = new Date(date); d.setFullYear(d.getFullYear()+offset,0,1); d.setHours(0,0,0,0); return d;
-}
-function endOfYear(date, offset=0){
-  const s = startOfYear(date, offset); const e = new Date(s); e.setFullYear(e.getFullYear(),11,31); e.setHours(23,59,59,999); return e;
-}
-
-function formatDateRange(a,b){
-  const f = new Intl.DateTimeFormat('vi-VN',{dateStyle:'medium'});
-  return f.format(a)+' - '+f.format(b);
-}
-
-/* ===================== State ===================== */
-let menu = loadMenu();
-let sales = loadSales();
-let reportOffset = 0; // for prev/next navigation
-
-/* ===================== Tabs ===================== */
-qsa('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    qsa('.tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const tab = btn.dataset.tab;
-    qsa('main section').forEach(s=>s.classList.add('hidden'));
-    qs('#'+tab).classList.remove('hidden');
-    if(tab==='sell'){ renderSell(); renderToday(); }
-    if(tab==='menu'){ renderMenu(); }
-    if(tab==='reports'){ renderReports(); }
-  });
+// Tabs
+qsa(".tab-btn").forEach(b=>b.onclick=()=>{
+  qsa(".tab-btn").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+  qsa("main section").forEach(s=>s.classList.add("hidden"));
+  qs("#"+b.dataset.tab).classList.remove("hidden");
+  if(b.dataset.tab==="banhang") renderBanHang();
+  if(b.dataset.tab==="menu") renderMenu();
+  if(b.dataset.tab==="nhapkho") renderKho();
+  if(b.dataset.tab==="baocao") renderReport();
 });
 
-/* ===================== MENU CRUD ===================== */
+// Quản lý Menu
 function renderMenu(){
-  const list = qs('#menu-list');
-  if(menu.length===0){
-    list.innerHTML = `<div class="card center"><div class="muted">No items. Add some on the left or use “Seed sample menu”.</div></div>`;
-    return;
-  }
-  list.innerHTML = '';
-  menu.forEach(item=>{
-    const card = document.createElement('div');
-    card.className = 'card menu-item';
-    card.innerHTML = `
-      <div>
-        <div class="menu-title">${item.name}</div>
-        <div class="muted price">${currency.format(item.price)}</div>
-      </div>
-      <div class="menu-actions">
-        <button class="btn" data-act="edit">Edit</button>
-        <button class="btn danger" data-act="del">Delete</button>
-      </div>`;
-    card.querySelector('[data-act="edit"]').onclick = ()=>{
-      qs('#menu-id').value = item.id;
-      qs('#menu-name').value = item.name;
-      qs('#menu-price').value = item.price;
-      window.scrollTo({top:0,behavior:'smooth'});
+  const list=qs("#menu-list"); list.innerHTML="";
+  menu.forEach((m,i)=>{
+    const div=document.createElement("div");
+    div.className="row"; 
+    div.innerHTML=`<div style="flex:1">${m.ten} - ${fmt.format(m.gia)}</div>
+      <button class="btn danger">Xóa</button>`;
+    div.querySelector(".danger").onclick=()=>{
+      if(confirm("Xóa món này?")){menu.splice(i,1);save(LS_MENU,menu);renderMenu();renderBanHang();}
     };
-    card.querySelector('[data-act="del"]').onclick = ()=>{
-      if(confirm(`Delete "${item.name}"?`)){
-        menu = menu.filter(m=>m.id!==item.id);
-        saveMenu(menu);
-        renderMenu();
-        renderSell();
-      }
+    list.appendChild(div);
+  })
+}
+qs("#menu-save").onclick=()=>{
+  const ten=qs("#menu-ten").value.trim(), gia=+qs("#menu-gia").value;
+  if(!ten||isNaN(gia)||gia<1000){alert("Nhập tên và giá hợp lệ");return}
+  menu.push({ten,gia});
+  save(LS_MENU,menu);
+  qs("#menu-ten").value="";qs("#menu-gia").value="";
+  renderMenu();renderBanHang();
+}
+
+// Nhập kho
+function renderKho(){
+  const list=qs("#kho-list"); list.innerHTML="";
+  if(!kho.length){list.innerHTML="<i>Chưa có dữ liệu</i>";return}
+  let tong=0;
+  let html="<table><tr><th>Tên hàng</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th><th></th></tr>";
+  kho.forEach((m,i)=>{
+    const tt=m.sl*m.dg; tong+=tt;
+    html+=`<tr><td>${m.ten}</td><td>${m.sl}</td><td>${fmt.format(m.dg)}</td><td>${fmt.format(tt)}</td>
+    <td><button class="btn danger" onclick="delKho(${i})">Xóa</button></td></tr>`;
+  });
+  html+=`<tr><th colspan=3>Tổng chi phí</th><th>${fmt.format(tong)}</th><th></th></tr></table>`;
+  list.innerHTML=html;
+}
+qs("#kho-save").onclick=()=>{
+  const ten=qs("#kho-ten").value.trim(), sl=+qs("#kho-sl").value, dg=+qs("#kho-dg").value;
+  if(!ten||isNaN(sl)||sl<1||isNaN(dg)||dg<1){alert("Nhập dữ liệu hợp lệ");return}
+  kho.push({ten,sl,dg,ts:Date.now()});
+  save(LS_KHO,kho);
+  qs("#kho-ten").value="";qs("#kho-sl").value="";qs("#kho-dg").value="";
+  renderKho();
+}
+function delKho(i){ if(confirm("Xóa phiếu nhập?")){kho.splice(i,1);save(LS_KHO,kho);renderKho();} }
+
+// Bán hàng
+function renderBanHang(){
+  const grid=qs("#ban-grid"); grid.innerHTML="";
+  menu.forEach(m=>{
+    const c=document.createElement("div"); c.className="card";
+    c.innerHTML=`<b>${m.ten}</b><br>${fmt.format(m.gia)}
+      <div class="row"><input type="number" min="1" step="1" value="1" style="width:90px">
+      <button class="btn success">Chọn</button></div>`;
+    const inp=c.querySelector("input");
+    c.querySelector("button").onclick=()=>{
+      const sl=+inp.value;
+      if(isNaN(sl)||sl<1){alert("Số lượng không hợp lệ");return;}
+      draft.push({ten:m.ten,gia:m.gia,sl});
+      renderHoaDon();
     };
-    list.appendChild(card);
+    grid.appendChild(c);
   });
+  renderHoaDon();
 }
-
-qs('#menu-save').addEventListener('click', ()=>{
-  const id = qs('#menu-id').value || uuid();
-  const name = qs('#menu-name').value.trim();
-  const price = +qs('#menu-price').value;
-  if(!name){ alert('Name is required'); return; }
-  if(!(price>=0)){ alert('Price must be a number ≥ 0'); return; }
-
-  const idx = menu.findIndex(m=>m.id===id);
-  if(idx>=0){ menu[idx] = {id,name,price}; }
-  else{ menu.push({id,name,price}); }
-  saveMenu(menu);
-  qs('#menu-id').value=''; qs('#menu-name').value=''; qs('#menu-price').value='';
-  renderMenu(); renderSell();
-});
-
-qs('#menu-reset').addEventListener('click', ()=>{
-  qs('#menu-id').value=''; qs('#menu-name').value=''; qs('#menu-price').value='';
-});
-
-/* ===================== SELL ===================== */
-function renderSell(){
-  const grid = qs('#sell-grid');
-  if(menu.length===0){ grid.innerHTML = `<div class="card center"><div class="muted">No menu items yet.</div></div>`; return; }
-  grid.innerHTML='';
-  menu.forEach(item=>{
-    const el = document.createElement('div');
-    el.className='card sell-card';
-    el.innerHTML = `
-      <h4>${item.name}</h4>
-      <div class="muted price">${currency.format(item.price)}</div>
-      <div class="row">
-        <input type="number" min="1" step="1" value="1" style="max-width:110px" aria-label="Quantity" />
-        <button class="btn success right">Add</button>
-      </div>`;
-    const qtyInput = el.querySelector('input');
-    el.querySelector('button').onclick = ()=>{
-      const qty = Math.max(1, Math.floor(+qtyInput.value||1));
-      const ts = Date.now();
-      sales.push({ id: uuid(), itemId: item.id, name: item.name, price: item.price, qty, ts });
-      saveSales(sales);
-      renderToday();
-    };
-    grid.appendChild(el);
+function renderHoaDon(){
+  if(!draft.length){qs("#ban-table").innerHTML="<i>Chưa có món trong hóa đơn</i>";return}
+  let tong=0, html="<table><tr><th>Món</th><th>SL</th><th>Thành tiền</th><th></th></tr>";
+  draft.forEach((s,idx)=>{
+    const t=s.sl*s.gia; tong+=t;
+    html+=`<tr><td>${s.ten}</td><td>${s.sl}</td><td>${fmt.format(t)}</td>
+      <td><button class="btn danger" onclick="rollbackDraft(${idx})">Hủy</button></td></tr>`;
   });
+  html+=`<tr><th colspan=2>Tổng</th><th>${fmt.format(tong)}</th><th></th></tr></table>`;
+  html+=`<div style="margin-top:12px"><button class="btn primary" onclick="finalizeOrder()">Tổng kết đơn</button></div>`;
+  qs("#ban-table").innerHTML=html;
+}
+function rollbackDraft(index){ draft.splice(index,1); renderHoaDon(); }
+function finalizeOrder(){
+  if(!draft.length)return;
+  if(!confirm("Xác nhận tổng kết đơn này?"))return;
+  const ts=Date.now();
+  draft.forEach(d=>{sales.push({...d,ts});});
+  save(LS_SALES,sales);
+  draft=[]; renderHoaDon();
+  alert("Đơn đã được ghi vào báo cáo!");
 }
 
-function renderToday(){
-  const s = startOfDay(new Date()), e = endOfDay(new Date());
-  const todaySales = sales.filter(x=>x.ts>=s.getTime() && x.ts<=e.getTime());
-  const {rows,totalQty,totalRev,entries} = aggregate(todaySales);
-  qs('#kpi-items').textContent = numberfmt.format(totalQty);
-  qs('#kpi-rev').textContent = currency.format(totalRev);
-  qs('#kpi-entries').textContent = numberfmt.format(entries);
-
-  qs('#today-table').innerHTML = tableHTML(rows, true);
+// Báo cáo
+function getRange(ky){
+  let start=new Date(),end=new Date();
+  if(ky==="day"){start.setHours(0,0,0,0); end.setHours(23,59,59,999);}
+  if(ky==="week"){const d=start.getDay();start.setDate(start.getDate()-d+1);start.setHours(0,0,0,0);end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);}
+  if(ky==="month"){start=new Date(start.getFullYear(),start.getMonth(),1);end=new Date(start.getFullYear(),start.getMonth()+1,0);}
+  if(ky==="year"){start=new Date(start.getFullYear(),0,1);end=new Date(start.getFullYear(),11,31);}
+  return {start,end};
 }
+function renderReport(){
+  const ky=qs("#ky").value; const {start,end}=getRange(ky);
+  const dsales=sales.filter(s=>s.ts>=start.getTime() && s.ts<=end.getTime());
+  const dkho=kho.filter(k=>k.ts>=start.getTime() && k.ts<=end.getTime());
 
-qs('#btn-undo').addEventListener('click', ()=>{
-  const last = sales[sales.length-1];
-  if(!last){ alert('Nothing to undo.'); return; }
-  if(confirm(`Undo last: ${last.qty} x ${last.name}?`)){
-    sales.pop(); saveSales(sales); renderToday();
+  // Doanh thu
+  let tongDT=0; const agg={};
+  dsales.forEach(s=>{if(!agg[s.ten])agg[s.ten]={sl:0,dt:0};agg[s.ten].sl+=s.sl;agg[s.ten].dt+=s.sl*s.gia;})
+  let html="<h4>Doanh thu bán hàng</h4><table><tr><th>Món</th><th>SL</th><th>Doanh thu</th></tr>";
+  Object.entries(agg).forEach(([ten,v])=>{tongDT+=v.dt;html+=`<tr><td>${ten}</td><td>${v.sl}</td><td>${fmt.format(v.dt)}</td></tr>`});
+  html+=`<tr><th colspan=2>Tổng doanh thu</th><th>${fmt.format(tongDT)}</th></tr></table>`;
+
+  // Chi phí
+  let tongCP=0;
+  if(dkho.length){
+    html+=`<h4>Chi phí nhập kho</h4><table><tr><th>Hàng</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr>`;
+    dkho.forEach(k=>{const tt=k.sl*k.dg; tongCP+=tt; html+=`<tr><td>${k.ten}</td><td>${k.sl}</td><td>${fmt.format(k.dg)}</td><td>${fmt.format(tt)}</td></tr>`});
+    html+=`<tr><th colspan=3>Tổng chi phí</th><th>${fmt.format(tongCP)}</th></tr></table>`;
   }
-});
 
-qs('#btn-clear-today').addEventListener('click', ()=>{
-  const s = startOfDay(new Date()).getTime();
-  const e = endOfDay(new Date()).getTime();
-  const count = sales.filter(x=>x.ts>=s && x.ts<=e).length;
-  if(count===0){ alert('No entries for today.'); return; }
-  if(confirm(`Clear ${count} sale entries for today?`)){
-    sales = sales.filter(x=>x.ts<s || x.ts>e);
-    saveSales(sales); renderToday();
-  }
-});
+  // Lợi nhuận
+  html+=`<h4>Kết quả</h4><p>Doanh thu: ${fmt.format(tongDT)}<br>Chi phí: ${fmt.format(tongCP)}<br><b>Lợi nhuận: ${fmt.format(tongDT-tongCP)}</b></p>`;
 
-/* ===================== REPORTS ===================== */
-function aggregate(arr){
-  const map = new Map();
-  let totalQty=0,totalRev=0;
-  arr.forEach(x=>{
-    const key = x.itemId || x.name;
-    const v = map.get(key) || {name:x.name, qty:0, revenue:0};
-    v.qty += x.qty;
-    v.revenue += x.qty * x.price;
-    totalQty += x.qty;
-    totalRev += x.qty * x.price;
-    map.set(key, v);
-  });
-  const rows = Array.from(map.values()).sort((a,b)=>b.revenue-a.revenue);
-  return {rows,totalQty,totalRev,entries:arr.length};
+  qs("#report").innerHTML=html;
 }
+qs("#ky").onchange=renderReport;
 
-function tableHTML(rows, showIndex=false){
-  if(rows.length===0) return `<div class="card center"><div class="muted">No data</div></div>`;
-  let html = `<table><thead><tr>${showIndex?'<th>#</th>':''}<th>Item</th><th>Qty</th><th>Revenue</th></tr></thead><tbody>`;
-  rows.forEach((r,i)=>{
-    html += `<tr>${showIndex?`<td>${i+1}</td>`:''}<td>${r.name}</td><td>${numberfmt.format(r.qty)}</td><td class="price">${currency.format(r.revenue)}</td></tr>`;
-  });
-  const totalQty = rows.reduce((a,b)=>a+b.qty,0);
-  const totalRev = rows.reduce((a,b)=>a+b.revenue,0);
-  html += `</tbody><tfoot><tr>${showIndex?'<td></td>':''}<td>Total</td><td>${numberfmt.format(totalQty)}</td><td class="price">${currency.format(totalRev)}</td></tr></tfoot></table>`;
-  return html;
-}
+// Xuất Excel
+qs("#btn-export").onclick=()=>{
+  const ky=qs("#ky").value; const {start,end}=getRange(ky);
+  const dsales=sales.filter(s=>s.ts>=start.getTime() && s.ts<=end.getTime());
+  const dkho=kho.filter(k=>k.ts>=start.getTime() && k.ts<=end.getTime());
+  const rows=[["Món","SL","Doanh thu"]];
+  let tongDT=0, agg={};
+  dsales.forEach(s=>{if(!agg[s.ten])agg[s.ten]={sl:0,dt:0};agg[s.ten].sl+=s.sl;agg[s.ten].dt+=s.sl*s.gia;})
+  Object.entries(agg).forEach(([ten,v])=>{rows.push([ten,v.sl,v.dt]);tongDT+=v.dt;});
+  rows.push(["Tổng doanh thu","",tongDT]);
+  rows.push([]);
+  rows.push(["Chi phí"]);
+  rows.push(["Hàng","SL","Đơn giá","Thành tiền"]);
+  let tongCP=0; dkho.forEach(k=>{const tt=k.sl*k.dg;tongCP+=tt;rows.push([k.ten,k.sl,k.dg,tt]);});
+  rows.push(["Tổng chi phí","","",tongCP]);
+  rows.push([]);
+  rows.push(["Lợi nhuận",tongDT-tongCP]);
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"BaoCao");
+  XLSX.writeFile(wb,`BaoCao_${ky}.xlsx`);
+};
 
-function getPeriodRange(kind='week', offset=0){
-  const now = new Date();
-  if(kind==='week'){
-    return { start: startOfWeek(now, offset), end: endOfWeek(now, offset), label: `Week ${offset===0?'(current)':''} ${formatDateRange(startOfWeek(now, offset), endOfWeek(now, offset))}` };
-  }
-  if(kind==='month'){
-    return { start: startOfMonth(now, offset), end: endOfMonth(now, offset), label: `Month ${offset===0?'(current)':''} ${formatDateRange(startOfMonth(now, offset), endOfMonth(now, offset))}` };
-  }
-  return { start: startOfYear(now, offset), end: endOfYear(now, offset), label: `Year ${offset===0?'(current)':''} ${formatDateRange(startOfYear(now, offset), endOfYear(now, offset))}` };
-}
+// Cài đặt
+qs("#btn-clear").onclick=()=>{if(confirm("Xóa toàn bộ dữ liệu?")){localStorage.clear();menu=[];sales=[];kho=[];draft=[];renderBanHang();renderMenu();renderKho();renderReport();}}
 
-function renderReports(){
-  const kind = qs('#period').value;
-  const {start,end,label} = getPeriodRange(kind, reportOffset);
-  qs('#period-label').textContent = label;
-  const arr = sales.filter(x=> x.ts>=start.getTime() && x.ts<=end.getTime());
-  const agg = aggregate(arr);
-  qs('#r-items').textContent = numberfmt.format(agg.totalQty);
-  qs('#r-rev').textContent = currency.format(agg.totalRev);
-  qs('#r-products').textContent = numberfmt.format(agg.rows.length);
-  qs('#report-table').innerHTML = tableHTML(agg.rows, true);
-}
-
-qs('#period').addEventListener('change', ()=>{ reportOffset=0; renderReports(); });
-qs('#btn-prev').addEventListener('click', ()=>{ reportOffset--; renderReports(); });
-qs('#btn-next').addEventListener('click', ()=>{ reportOffset++; renderReports(); });
-
-/* ===================== SETTINGS ===================== */
-qs('#btn-clear-all').addEventListener('click', ()=>{
-  if(confirm('Clear ALL menu and sales data? This cannot be undone.')){
-    localStorage.removeItem(LS_MENU);
-    localStorage.removeItem(LS_SALES);
-    menu = []; sales = [];
-    renderMenu(); renderSell(); renderToday(); renderReports();
-    alert('All data cleared.');
-  }
-});
-
-qs('#btn-seed').addEventListener('click', ()=>{
-  if(menu.length>0 && !confirm('Replace current menu with sample items?')) return;
-  menu = [
-    {id:uuid(), name:'Cà phê đen', price:15000},
-    {id:uuid(), name:'Cà phê sữa', price:18000},
-    {id:uuid(), name:'Bạc xỉu', price:22000},
-    {id:uuid(), name:'Trà chanh', price:16000},
-    {id:uuid(), name:'Trà đào', price:25000},
-    {id:uuid(), name:'Nước suối', price:8000},
-  ];
-  saveMenu(menu);
-  renderMenu(); renderSell();
-});
-
-/* ===================== Boot ===================== */
-(function init(){
-  // First render
-  renderSell();
-  renderToday();
-  renderMenu();
-  renderReports();
-})();
+// Khởi tạo
+renderBanHang(); renderMenu(); renderKho(); renderReport();
 </script>
 </body>
 </html>
