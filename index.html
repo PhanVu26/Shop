@@ -1,196 +1,33 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>TRẠM CÀ PHÊ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-html { font-size: 16px; }
-body {
-    font-family: 'Quicksand', Arial, sans-serif;
-    margin: 0;
-    background: #f7f2ee;
-    color: #2d2d2d;
-    min-height: 100vh;
-}
-/* ... (rest of CSS unchanged, see above for full code) ... */
-.report-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 10px;
-    margin-top: 5px;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(111,78,55,.09);
-}
-.report-table th, .report-table td {
-    border: 1px solid #e4dacb;
-    padding: 7px 4px;
-    text-align: center;
-    font-size: 1em;
-}
-.report-table th {
-    background: #f5ede5;
-    color: #6f4e37;
-    font-weight: 700;
-}
-.report-pagination-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    margin: 5px 0 15px 0;
-    font-size: 0.97em;
-}
-@media (max-width: 600px) {
-    .report-table th, .report-table td { font-size: 0.95em; padding: 5px 2px;}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Shop</title>
+    <style>
+        /* Styles for highlighting selected quantity button */
+        .highlighted {
+            background-color: #6f4e37;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<nav>
-  <button onclick="openTab('banhang')" id="tab-banhang" class="active">Bán hàng</button>
-  <button onclick="openTab('menu')">Menu</button>
-  <button onclick="openTab('nhapkho')">Nhập kho</button>
-  <button onclick="openTab('baocao')">Báo cáo</button>
-  <button onclick="openTab('caidat')">Cài đặt</button>
-</nav>
-
-<!-- Bán hàng -->
-<section id="banhang">
-  <div class="sold-sticky-btn" id="sold-sticky-btn"></div>
-  <h2>Bán hàng</h2>
-  <div class="menu-search-bar">
-    <input class="menu-search-input" id="menu-search" placeholder="Tìm món..." autocomplete="off" oninput="renderBanHang()">
-    <div id="menu-search-dropdown" class="menu-search-dropdown" style="display:none"></div>
-    <div class="menu-pagination-bar">
-      <span>Hiển thị:</span>
-      <select id="menu-page-size" onchange="renderBanHang()">
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="20">20</option>
-        <option value="all">Tất cả</option>
-      </select>
-      <button id="menu-prev" onclick="changeMenuPage(-1)">&lt;</button>
-      <span id="menu-page-info"></span>
-      <button id="menu-next" onclick="changeMenuPage(1)">&gt;</button>
+    <div class="popup">
+        <button class="quantity-button" onclick="selectQuantity(this)">1</button>
+        <button class="quantity-button" onclick="selectQuantity(this)">2</button>
+        <button class="quantity-button" onclick="selectQuantity(this)">3</button>
     </div>
-  </div>
-  <div class="menu-row-list" id="ban-row-list"></div>
-</section>
-
-<!-- Menu -->
-<section id="menu" class="hidden">
-  <h2>Quản lý menu</h2>
-  <div style="margin-bottom:10px">
-    <input id="new-ten" placeholder="Tên món">
-    <div style="position:relative">
-      <input id="new-gia" type="number" placeholder="Giá (VNĐ)" min="0" inputmode="numeric" oninput="onVNDInput(this)">
-      <span style="position:absolute;right:10px;top:12px;color:#a1887f;">VND</span>
+    <script>
+        function selectQuantity(button) {
+            const buttons = document.querySelectorAll('.quantity-button');
+            buttons.forEach(btn => btn.classList.remove('highlighted')); // Remove highlight from all
+            button.classList.add('highlighted'); // Highlight the selected button
+        }
+    </script>
+    <div class="settings">
+        <!-- <button id="delete-all-data">Xóa toàn bộ dữ liệu</button> -->
     </div>
-    <button class="btn success" onclick="addMenu()">Thêm</button>
-    <div id="menu-msg" class="msg-err"></div>
-  </div>
-  <table id="menu-table"></table>
-  <div style="margin-top:12px">
-    <input type="file" id="csv-file" accept=".csv">
-    <button class="btn primary" onclick="importCSV()">Import CSV</button>
-  </div>
-</section>
-
-<!-- Nhập kho -->
-<section id="nhapkho" class="hidden">
-  <h2>Quản lý nhập kho</h2>
-  <div>
-    <input id="nhap-ten" placeholder="Tên món (tự do)">
-    <input type="number" id="nhap-sl" placeholder="Số lượng" min="1" max="99999" inputmode="numeric">
-    <div style="position:relative">
-      <input type="number" id="nhap-gia" placeholder="Đơn giá (VNĐ)" min="0" inputmode="numeric" oninput="onVNDInput(this)">
-      <span style="position:absolute;right:10px;top:12px;color:#a1887f;">VND</span>
-    </div>
-    <button class="btn success" onclick="addNhap()">Nhập</button>
-    <div id="nhap-msg" class="msg-err"></div>
-  </div>
-  <table id="nhap-table"></table>
-</section>
-
-<!-- Báo cáo -->
-<section id="baocao" class="hidden">
-  <h2>Báo cáo</h2>
-  <label for="report-month" style="font-size:1.08em;">Chọn tháng:</label>
-  <input type="month" id="report-month" style="font-size:1.08em;padding:6px" onchange="renderReport()">
-  <label for="report-date" style="font-size:1.08em;margin-left:12px;">Chọn ngày:</label>
-  <input type="date" id="report-date" style="font-size:1.08em;padding:6px" onchange="renderReport()">
-  <div class="report-pagination-bar" id="report-sale-pagination"></div>
-  <h3>Danh sách bán hàng</h3>
-  <div id="report-sales"></div>
-  
-  <h3>Doanh thu &amp; Lợi nhuận (Tuần / Tháng / Năm)</h3>
-  <div id="report-summary"></div>
-</section>
-
-<!-- Cài đặt -->
-<section id="caidat" class="hidden">
-  <h2>Cài đặt</h2>
-  <button class="btn danger" onclick="clearData()">Xóa toàn bộ dữ liệu</button>
-  <button class="btn danger" onclick="clearSalesData()">Xoá toàn bộ dữ liệu bán hàng</button>
-  <button class="btn secondary" onclick="exportData()">Xuất dữ liệu</button>
-  <input type="file" id="import-json" accept=".json" style="margin-top:12px">
-  <button class="btn primary" onclick="importData()">Nhập dữ liệu</button>
-  <div style="margin-top:8px;color:#8d6e63;font-size:0.98em;">
-    Hãy sao lưu dữ liệu định kỳ!<br>
-    <b>Khi nhập dữ liệu sẽ ghi đè dữ liệu hiện tại.</b>
-  </div>
-</section>
-
-<!-- Popup nhập số lượng bán -->
-<div id="sell-popup" class="popup" tabindex="-1" onclick="popupBackdrop(event)">
-  <div class="popup-content">
-    <button class="close-x" onclick="closePopup()" title="Đóng">×</button>
-    <h3 id="popup-name"></h3>
-    <p>Giá: <span id="popup-price"></span></p>
-    <div style="display:flex;gap:4px;justify-content:center;margin-bottom:8px;">
-      <button type="button" class="btn secondary" onclick="setPopupQty(1)">1</button>
-      <button type="button" class="btn secondary" onclick="setPopupQty(2)">2</button>
-      <button type="button" class="btn secondary" onclick="setPopupQty(3)">3</button>
-      <button type="button" class="btn secondary" onclick="setPopupQty(4)">4</button>
-      <button type="button" class="btn secondary" onclick="setPopupQty(5)">5</button>
-    </div>
-    <input type="number" id="popup-qty" min="1" value="1" inputmode="numeric" autocomplete="off">
-    <div id="popup-err" class="msg-err"></div>
-    <div style="margin-top:15px">
-      <button class="btn primary" onclick="confirmSell()">Xác nhận</button>
-      <button class="btn danger" onclick="closePopup()">Hủy</button>
-    </div>
-  </div>
-</div>
-
-<!-- Menu Edit Popup -->
-<div id="menu-edit-popup-back" class="popup" style="z-index:1200" tabindex="-1" onclick="closeMenuEditPopup(event)">
-  <div class="menu-edit-popup" id="menu-edit-popup" style="display:none"></div>
-</div>
-
-<!-- Nhập kho Edit Popup -->
-<div id="nhapkho-edit-popup-back" class="popup" style="z-index:1300" tabindex="-1" onclick="closeNhapEditPopup(event)">
-  <div class="menu-edit-popup" id="nhapkho-edit-popup" style="display:none"></div>
-</div>
-
-<!-- Sold Modal -->
-<div id="sold-modal-back" class="popup" tabindex="-1" onclick="soldModalBackdrop(event)">
-  <div class="sold-modal" id="sold-modal" style="display:none"></div>
-</div>
-
-<script>
-/* --- JavaScript code from the full code above, unchanged --- */
-const LS_MENU="menu",LS_SALES="sales",LS_NHAP="nhapkho";
-let menu=JSON.parse(localStorage.getItem(LS_MENU)||"[]");
-let sales=JSON.parse(localStorage.getItem(LS_SALES)||"[]");
-let nhapkho=JSON.parse(localStorage.getItem(LS_NHAP)||"[]");
-let currentItem=null,lastSoldId=null;
-/* ... rest of code unchanged, see full listing above ... */
-</script>
 </body>
 </html>
